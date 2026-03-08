@@ -7,6 +7,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class SmartAiApplication {
 
 	public static void main(String[] args) {
+
 		SpringApplication.run(SmartAiApplication.class, args);
 	}
 

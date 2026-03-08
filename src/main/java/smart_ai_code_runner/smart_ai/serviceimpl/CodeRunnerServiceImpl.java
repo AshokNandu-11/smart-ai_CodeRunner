@@ -1,13 +1,14 @@
 package smart_ai_code_runner.smart_ai.serviceimpl;
 
 
+
 import org.springframework.stereotype.Service;
 import smart_ai_code_runner.smart_ai.dto.CodeExecutionRequest;
 import smart_ai_code_runner.smart_ai.dto.CodeExecutionResponse;
 import smart_ai_code_runner.smart_ai.dto.TestCaseResult;
 import smart_ai_code_runner.smart_ai.entity.TestCase;
 import smart_ai_code_runner.smart_ai.executor.PythonExecutor;
-import smart_ai_code_runner.smart_ai.repository.TestCasesRepository;
+import smart_ai_code_runner.smart_ai.repository.TestCaseRepository;
 import smart_ai_code_runner.smart_ai.service.CodeRunnerService;
 
 import java.util.ArrayList;
@@ -17,11 +18,11 @@ import java.util.List;
 public class CodeRunnerServiceImpl implements CodeRunnerService {
 
     private final PythonExecutor pythonExecutor;
-    private final TestCasesRepository testCasesRepository;
+    private final TestCaseRepository testCaseRepository;
 
-    public CodeRunnerServiceImpl(PythonExecutor pythonExecutor, TestCasesRepository testCasesRepository) {
+    public CodeRunnerServiceImpl(PythonExecutor pythonExecutor, TestCaseRepository testCaseRepository) {
         this.pythonExecutor = pythonExecutor;
-        this.testCasesRepository = testCasesRepository;
+        this.testCaseRepository = testCaseRepository;
     }
 
 
@@ -36,7 +37,8 @@ public class CodeRunnerServiceImpl implements CodeRunnerService {
         try {
 
             // Fetch all testcases for this question
-            List<TestCase> testCases = testCasesRepository.findByQuestionId(request.getQuestionId());
+            List<TestCase> testCases = testCaseRepository.findByQuestionId(request.getQuestionId());
+            System.out.println("Total Testcases Found: "+ testCases.size());
 
             int passedCount = 0;
 
@@ -77,6 +79,7 @@ public class CodeRunnerServiceImpl implements CodeRunnerService {
             response.setResults(results);
             response.setTotalTestCases(testCases.size());
             response.setPassedTestCases(passedCount);
+            response.setPassed(passedCount == testCases.size());
 
         }catch(Exception e){
 

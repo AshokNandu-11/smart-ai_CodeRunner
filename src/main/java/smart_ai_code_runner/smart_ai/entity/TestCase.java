@@ -11,11 +11,13 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@Table(name = "testcase")
 public class TestCase {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "question_id")
     private Long questionId;
 
     @Column(columnDefinition = "TEXT")

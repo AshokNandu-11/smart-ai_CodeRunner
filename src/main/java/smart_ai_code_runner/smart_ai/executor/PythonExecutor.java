@@ -5,32 +5,48 @@ import org.springframework.stereotype.Component;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 @Component
 public class PythonExecutor {
-    public String execute(String code, String input) throws Exception {
 
-        Path tempFile = Files.createTempFile("code", ".py");
-        Files.write(tempFile, code.getBytes());
+    public String execute(String sourceCode, String input) throws Exception {
 
-        ProcessBuilder processBuilder = new ProcessBuilder(
-                "docker", "run", "--rm","-i",
-                "-v", tempFile.getParent().toAbsolutePath() + ":/app",
+        // Create temp directory
+        String folder = System.getProperty("java.io.tmpdir") + "/judge_" + UUID.randomUUID();
+        File dir = new File(folder);
+        dir.mkdirs();
+
+        // Create python file
+        Path codeFile = Path.of(folder, "solution.py");
+        Files.writeString(codeFile, sourceCode);
+
+        // Docker command
+        ProcessBuilder pb = new ProcessBuilder(
+                "docker",
+                "run",
+                "--rm",
+                "-i",
+                "-v", folder + ":/app",
                 "python:3.10",
-                "python", "/app/" + tempFile.getFileName().toString()
+                "python",
+                "/app/solution.py"
         );
 
-        Process process = processBuilder.start();
+        Process process = pb.start();
 
-        // Send input to program
-        if (input != null && !input.isEmpty()) {
-            BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(
-                    process.getOutputStream()));
-            writer.write(input);
-            writer.flush();
-            writer.close();
-        }
+        // Send input
+        BufferedWriter writer = new BufferedWriter(
+                new OutputStreamWriter(process.getOutputStream())
+        );
 
+        writer.write(input);
+        writer.newLine();
+        writer.flush();
+        writer.close();
+
+        // Capture output
         BufferedReader reader = new BufferedReader(
                 new InputStreamReader(process.getInputStream())
         );
@@ -42,23 +58,8 @@ public class PythonExecutor {
             output.append(line);
         }
 
-        //Read errors
-        BufferedReader errorReader = new BufferedReader(new
-                InputStreamReader(process.getErrorStream()));
-        StringBuilder errorOutput = new StringBuilder();
-        while ((line = errorReader.readLine())!= null){
-            errorOutput.append(line);
-        }
-
-        process.waitFor();
-
-        //If error exists return it
-
-        if (!errorOutput.isEmpty()){
-            return "ERROR: "+errorOutput.toString();
-        }
+        process.waitFor(2, TimeUnit.SECONDS);
 
         return output.toString();
     }
-
 }

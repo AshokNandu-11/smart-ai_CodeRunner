@@ -6,7 +6,7 @@ import smart_ai_code_runner.smart_ai.entity.TestCase;
 
 import java.util.List;
 
-public interface TestCasesRepository extends JpaRepository<TestCase,Long> {
+public interface TestCaseRepository extends JpaRepository<TestCase,Long> {
     List<TestCase> findByQuestionId(Long questionId);
 
 }
