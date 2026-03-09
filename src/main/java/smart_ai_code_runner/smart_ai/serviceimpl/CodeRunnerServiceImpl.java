@@ -30,6 +30,7 @@ public class CodeRunnerServiceImpl implements CodeRunnerService {
     @Override
     public CodeExecutionResponse runCode(CodeExecutionRequest request){
 
+        long startTime = System.currentTimeMillis();
         CodeExecutionResponse response = new CodeExecutionResponse();
 
         List<TestCaseResult> results = new ArrayList<>();
@@ -77,9 +78,15 @@ public class CodeRunnerServiceImpl implements CodeRunnerService {
 
             response.setSuccess(true);
             response.setResults(results);
+
+            int totalTestCases = testCases.size();
+
             response.setTotalTestCases(testCases.size());
             response.setPassedTestCases(passedCount);
+            response.setFailedTestCases(totalTestCases - passedCount);
             response.setPassed(passedCount == testCases.size());
+            long endTime = System.currentTimeMillis();
+            response.setExecutionTime(endTime-startTime);
 
         }catch(Exception e){
 

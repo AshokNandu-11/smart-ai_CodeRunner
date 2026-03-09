@@ -15,4 +15,6 @@ public class CodeExecutionResponse {
     private int totalTestCases;
     private int passedTestCases;
     private List<TestCaseResult> results;
+    private int failedTestCases;
+    private long executionTime;
 }

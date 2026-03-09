@@ -13,30 +13,31 @@ public class PythonExecutor {
 
     public String execute(String sourceCode, String input) throws Exception {
 
-        // Create temp directory
+        // create temporary folder
         String folder = System.getProperty("java.io.tmpdir") + "/judge_" + UUID.randomUUID();
         File dir = new File(folder);
         dir.mkdirs();
 
-        // Create python file
+        // create python file
         Path codeFile = Path.of(folder, "solution.py");
         Files.writeString(codeFile, sourceCode);
 
-        // Docker command
-        ProcessBuilder pb = new ProcessBuilder(
+        // build docker command
+        ProcessBuilder processBuilder = new ProcessBuilder(
                 "docker",
                 "run",
                 "--rm",
                 "-i",
-                "-v", folder + ":/app",
+                "-v",
+                folder + ":/app",
                 "python:3.10",
                 "python",
                 "/app/solution.py"
         );
 
-        Process process = pb.start();
+        Process process = processBuilder.start();
 
-        // Send input
+        // send input
         BufferedWriter writer = new BufferedWriter(
                 new OutputStreamWriter(process.getOutputStream())
         );
@@ -46,19 +47,41 @@ public class PythonExecutor {
         writer.flush();
         writer.close();
 
-        // Capture output
+        // read output
         BufferedReader reader = new BufferedReader(
                 new InputStreamReader(process.getInputStream())
         );
 
+        // read error stream
+        BufferedReader errorReader = new BufferedReader(
+                new InputStreamReader(process.getErrorStream())
+        );
+
         StringBuilder output = new StringBuilder();
+        StringBuilder error = new StringBuilder();
+
         String line;
 
         while ((line = reader.readLine()) != null) {
             output.append(line);
         }
 
-        process.waitFor(2, TimeUnit.SECONDS);
+        while ((line = errorReader.readLine()) != null) {
+            error.append(line);
+        }
+
+        // timeout protection (3 seconds)
+        boolean finished = process.waitFor(3, TimeUnit.SECONDS);
+
+        if (!finished) {
+            process.destroyForcibly();
+            return "TIME_LIMIT_EXCEEDED";
+        }
+
+        // if python error occurs
+        if (!error.isEmpty()) {
+            return "RUNTIME_ERROR: " + error;
+        }
 
         return output.toString();
     }
