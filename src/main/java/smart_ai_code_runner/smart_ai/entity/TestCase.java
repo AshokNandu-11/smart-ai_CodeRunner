@@ -27,6 +27,7 @@ public class TestCase {
     private String expectedOutput;
 
     private boolean sample;
+    private boolean visible;
 
 
 }

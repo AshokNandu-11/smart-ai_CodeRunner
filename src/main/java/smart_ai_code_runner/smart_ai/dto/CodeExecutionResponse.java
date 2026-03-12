@@ -17,4 +17,6 @@ public class CodeExecutionResponse {
     private List<TestCaseResult> results;
     private int failedTestCases;
     private long executionTime;
+    private String status;
+    private String message;
 }
