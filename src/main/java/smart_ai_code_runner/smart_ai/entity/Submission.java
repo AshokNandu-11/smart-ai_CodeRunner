@@ -14,14 +14,14 @@ public class Submission {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Long questionId;
+    private Long problemId;
 
     @Column(columnDefinition = "TEXT")
     private String sourceCode;
 
     private String language;
+    private String status;
 
-    private boolean passed;
     private int totalTestCases;
     private int passedTestCases;
     private long executionTime;

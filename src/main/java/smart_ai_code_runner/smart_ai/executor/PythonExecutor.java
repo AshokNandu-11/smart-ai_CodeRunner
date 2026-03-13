@@ -78,13 +78,10 @@ public class PythonExecutor {
             return "TIME_LIMIT_EXCEEDED";
         }
         int exitCode = process.exitValue();
-        if (exitCode !=0 ){
-            return "RUNTIME_ERROR: "+ error.toString();
-        }
 
         // if python error occurs
         if (!error.isEmpty()) {
-            return "RUNTIME_ERROR: " + error;
+            return "RUNTIME_ERROR: " + error.toString();
         }
 
 

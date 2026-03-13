@@ -103,15 +103,19 @@ public class CodeRunnerServiceImpl implements CodeRunnerService {
                 }
             }
             Submission submission = new Submission();
-            submission.setQuestionId(request.getQuestionId());
-            submission.setSourceCode(request.getSourceCode());
+            submission.setProblemId(request.getQuestionId());
             submission.setLanguage(request.getLanguage());
-            submission.setPassed(response.isPassed());
+            submission.setSourceCode(request.getSourceCode());
+            submission.setExecutionTime(response.getExecutionTime());
             submission.setTotalTestCases(response.getTotalTestCases());
             submission.setPassedTestCases(response.getPassedTestCases());
-            submission.setExecutionTime(response.getExecutionTime());
-            submission.setSubmittedAt(LocalDateTime.now());
 
+            if(response.isPassed()){
+                submission.setStatus("ACCEPTED");
+            }else {
+                submission.setStatus("FAILED");
+            }
+            submission.setSubmittedAt(LocalDateTime.now());
             submissionRepository.save(submission);
 
             response.setSuccess(true);
